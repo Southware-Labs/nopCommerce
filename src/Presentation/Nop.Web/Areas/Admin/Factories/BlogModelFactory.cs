@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
 using Nop.Services.Blogs;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
@@ -274,11 +275,12 @@ public partial class BlogModelFactory : IBlogModelFactory
                 //set title from linked blog post
                 commentModel.BlogPostTitle = (await _blogService.GetBlogPostByIdAsync(blogComment.BlogPostId))?.Title;
 
-                var commentCustomer = await _customerService.GetCustomerByIdAsync(blogComment.CustomerId ?? 0);
-                commentModel.CustomerInfo = string.IsNullOrEmpty(commentCustomer?.Email)
-                    ? await _localizationService.GetResourceAsync("Admin.Customers.Guest")
-                    : commentCustomer.Email;
-
+                if ((await _customerService.GetCustomerByIdAsync(blogComment.CustomerId)) is Customer customer)
+                {
+                    commentModel.CustomerInfo = (await _customerService.IsRegisteredAsync(customer))
+                        ? customer.Email
+                        : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                }
                 //fill in additional values (not existing in the entity)
                 commentModel.CreatedOn = await _dateTimeHelper.ConvertToUserTimeAsync(blogComment.CreatedOnUtc, DateTimeKind.Utc);
                 commentModel.Comment = _htmlFormatter.FormatText(blogComment.CommentText);

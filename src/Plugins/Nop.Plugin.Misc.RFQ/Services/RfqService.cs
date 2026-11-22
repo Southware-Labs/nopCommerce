@@ -153,9 +153,15 @@ public class RfqService
                 .OrderByDescending(o => o.CreatedOnUtc)
                 .FirstOrDefaultAsync();
 
-            storeId = order != null
-                ? order.StoreId
-                : (await _customerService.GetCustomerByIdAsync(quote.CustomerId))?.RegisteredInStoreId ?? 0;
+            if (order != null)
+            {
+                storeId = order.StoreId;
+            }
+            else
+            {
+                var customer = await _customerService.GetCustomerByIdAsync(quote.CustomerId);
+                storeId = customer.RegisteredInStoreId;
+            }
         }
 
         return await _settingService.LoadSettingAsync<PdfSettings>(storeId);
@@ -959,15 +965,12 @@ public class RfqService
                 OrderNumber = orderNumberText,
                 QuoteNumber = quote.Id.ToString(),
                 Status = await _localizationService.GetLocalizedEnumAsync(quote.Status),
-                CustomerInfo = customer is null
-                    ? await _localizationService.GetResourceAsync("Customer.Guest")
-                    : $"{await _customerService.GetCustomerFullNameAsync(customer)} ({customer.Email})",
-                ExpirationDate = expirationDate == null || quote.OrderId.HasValue
-                    ? string.Empty
-                    : expirationDate.Value.ToString("D", new CultureInfo(language.LanguageCulture))
+                CustomerInfo = $"{await _customerService.GetCustomerFullNameAsync(customer)} ({customer.Email})",
+                ExpirationDate = expirationDate == null || quote.OrderId.HasValue ? string.Empty : expirationDate.Value.ToString("D", new CultureInfo(language.LanguageCulture))
             },
             Products = await getQuoteProductItems(),
-            GetResourceAsync = async (resourceKey, languageId) => await _localizationService.GetResourceAsync(resourceKey, languageId)
+            GetResourceAsync = async (resourceKey, languageId) =>
+                await _localizationService.GetResourceAsync(resourceKey, languageId)
         };
 
         await using var pdfStream = new MemoryStream();

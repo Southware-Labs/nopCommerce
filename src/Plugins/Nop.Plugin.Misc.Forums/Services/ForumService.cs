@@ -1,4 +1,6 @@
-﻿using Markdig;
+﻿using System.Text.RegularExpressions;
+using Ganss.Xss;
+using Markdig;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Customers;
@@ -9,7 +11,6 @@ using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Html;
-using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Seo;
 using Nop.Web.Framework.Mvc.Routing;
@@ -19,7 +20,7 @@ namespace Nop.Plugin.Misc.Forums.Services;
 /// <summary>
 /// Forum service
 /// </summary>
-public class ForumService
+public partial class ForumService
 {
     #region Fields
 
@@ -28,7 +29,6 @@ public class ForumService
     private readonly ICustomerService _customerService;
     private readonly IGenericAttributeService _genericAttributeService;
     private readonly IHtmlFormatter _htmlFormatter;
-    private readonly ILocalizationService _localizationService;
     private readonly IMessageTokenProvider _messageTokenProvider;
     private readonly INopUrlHelper _nopUrlHelper;
     private readonly IRepository<Customer> _customerRepository;
@@ -46,6 +46,8 @@ public class ForumService
     private readonly IWorkflowMessageService _workflowMessageService;
     private readonly SeoSettings _seoSettings;
 
+    const string ALLOWED_TAGS = "br,hr,b,i,u,a,div,ol,ul,li,blockquote,img,span,p,em,strong,font,pre,h1,h2,h3,h4,h5,h6,address,cite,code";
+
     #endregion
 
     #region Ctor
@@ -55,7 +57,6 @@ public class ForumService
         ICustomerService customerService,
         IGenericAttributeService genericAttributeService,
         IHtmlFormatter htmlFormatter,
-        ILocalizationService localizationService,
         IMessageTokenProvider messageTokenProvider,
         INopUrlHelper nopUrlHelper,
         IRepository<Customer> customerRepository,
@@ -78,7 +79,6 @@ public class ForumService
         _customerService = customerService;
         _genericAttributeService = genericAttributeService;
         _htmlFormatter = htmlFormatter;
-        _localizationService = localizationService;
         _messageTokenProvider = messageTokenProvider;
         _nopUrlHelper = nopUrlHelper;
         _customerRepository = customerRepository;
@@ -101,6 +101,48 @@ public class ForumService
 
     #region Utilities
 
+    private bool IsValidTag(string tag)
+    {
+        var aTags = ALLOWED_TAGS.Split(',');
+
+        var endChars = new[] { ' ', '>', '/', '\t' };
+
+        var pos = tag.IndexOfAny(endChars, 1);
+
+        if (pos > 0)
+            tag = tag[..pos];
+
+        if (tag[0] == '/')
+            tag = tag[1..];
+
+        return aTags.Any(aTag => tag == aTag);
+    }
+
+    /// <summary>
+    /// Ensure only allowed HTML tags
+    /// </summary>
+    /// <param name="text">Text</param>
+    /// <returns>Sanitized text with all invalid tags removed</returns>
+    private string EnsureOnlyAllowedHtml(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+        
+        var m = HtmlTagRegex().Matches(text);
+
+        for (var i = m.Count - 1; i >= 0; i--)
+        {
+            var tag = text[(m[i].Index + 1)..(m[i].Index + m[i].Length)].Trim().ToLower();
+
+            if (!IsValidTag(tag))
+                text = text.Remove(m[i].Index, m[i].Length);
+        }
+
+        var sanitizer = new HtmlSanitizer();
+
+        return sanitizer.Sanitize(text);
+    }
+
     /// <summary>
     /// Formats the text
     /// </summary>
@@ -119,7 +161,7 @@ public class ForumService
             formatedText = textFormatType switch
             {
                 TextFormatType.BBCode => _bbCodeHelper.FormatText(_htmlFormatter.FormatText(text)),
-                TextFormatType.Markdown => CommonHelper.EnsureOnlyAllowedHtml(Markdown.ToHtml(CSharpFormat.FormatTextSimple(text))),
+                TextFormatType.Markdown => EnsureOnlyAllowedHtml(Markdown.ToHtml(CSharpFormat.FormatTextSimple(text))),
                 _ => _htmlFormatter.FormatText(text)
             };
         }
@@ -173,12 +215,9 @@ public class ForumService
     /// <returns>A task that represents the asynchronous operation</returns>
     private async Task AddForumPostTokensAsync(List<Token> tokens, ForumPost forumPost)
     {
-        var customer = await _customerService.GetCustomerByIdAsync(forumPost.CustomerId ?? 0);
-        var isGuest = customer == null || await _customerService.IsGuestAsync(customer);
+        var customer = await _customerService.GetCustomerByIdAsync(forumPost.CustomerId);
 
-        tokens.Add(new("Forums.PostAuthor", isGuest
-            ? await _localizationService.GetResourceAsync("Customer.Guest")
-            : await _customerService.FormatUsernameAsync(customer)));
+        tokens.Add(new("Forums.PostAuthor", await _customerService.FormatUsernameAsync(customer)));
         tokens.Add(new("Forums.PostBody", FormatPostText(forumPost), true));
     }
 
@@ -230,7 +269,7 @@ public class ForumService
         {
             lastTopicId = lastValues.LastTopicId;
             lastPostId = lastValues.LastPostId;
-            lastPostCustomerId = lastValues.LastPostCustomerId ?? 0;
+            lastPostCustomerId = lastValues.LastPostCustomerId;
             lastPostTime = lastValues.LastPostTime;
         }
 
@@ -280,7 +319,7 @@ public class ForumService
         if (lastValues != null)
         {
             lastPostId = lastValues.LastPostId;
-            lastPostCustomerId = lastValues.LastPostCustomerId ?? 0;
+            lastPostCustomerId = lastValues.LastPostCustomerId;
             lastPostTime = lastValues.LastPostTime;
         }
 
@@ -569,7 +608,7 @@ public class ForumService
         //update stats
         await UpdateForumStatsAsync(forumId);
         foreach (var customerId in customerIds)
-            await UpdateCustomerStatsAsync(customerId ?? 0);
+            await UpdateCustomerStatsAsync(customerId);
     }
 
     /// <summary>
@@ -771,14 +810,14 @@ public class ForumService
         if (deleteTopic)
         {
             await DeleteTopicAsync(forumTopic);
-            await UpdateCustomerStatsAsync(customerId ?? 0);
+            await UpdateCustomerStatsAsync(customerId);
             return;
         }
 
         //update stats
         await UpdateForumTopicStatsAsync(forumTopicId);
         await UpdateForumStatsAsync(forumId);
-        await UpdateCustomerStatsAsync(customerId ?? 0);
+        await UpdateCustomerStatsAsync(customerId);
     }
 
     /// <summary>
@@ -868,7 +907,7 @@ public class ForumService
 
         await UpdateForumTopicStatsAsync(forumPost.TopicId);
         await UpdateForumStatsAsync(forumId);
-        await UpdateCustomerStatsAsync(customerId ?? 0);
+        await UpdateCustomerStatsAsync(customerId);
 
         //notifications
         if (!sendNotifications)
@@ -1530,6 +1569,9 @@ public class ForumService
             return await _workflowMessageService.SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, toEmail, toName);
         }).ToListAsync();
     }
+
+    [GeneratedRegex("<.*?>", RegexOptions.IgnoreCase)]
+    private static partial Regex HtmlTagRegex();
 
     #endregion
 }

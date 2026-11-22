@@ -9,7 +9,6 @@ using Nop.Plugin.Misc.News.Services;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
-using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Seo;
 
@@ -27,7 +26,6 @@ public class NewsModelFactory
     protected readonly ICustomerService _customerService;
     protected readonly IDateTimeHelper _dateTimeHelper;
     protected readonly IGenericAttributeService _genericAttributeService;
-    protected readonly ILocalizationService _localizationService;
     protected readonly IPictureService _pictureService;
     protected readonly IStaticCacheManager _staticCacheManager;
     protected readonly IStoreContext _storeContext;
@@ -46,7 +44,6 @@ public class NewsModelFactory
         ICustomerService customerService,
         IDateTimeHelper dateTimeHelper,
         IGenericAttributeService genericAttributeService,
-        ILocalizationService localizationService,
         IPictureService pictureService,
         IStaticCacheManager staticCacheManager,
         IStoreContext storeContext,
@@ -61,7 +58,6 @@ public class NewsModelFactory
         _customerService = customerService;
         _dateTimeHelper = dateTimeHelper;
         _genericAttributeService = genericAttributeService;
-        _localizationService = localizationService;
         _newsService = newsService;
         _pictureService = pictureService;
         _staticCacheManager = staticCacheManager;
@@ -212,29 +208,24 @@ public class NewsModelFactory
     {
         ArgumentNullException.ThrowIfNull(newsComment);
 
-        var customer = await _customerService.GetCustomerByIdAsync(newsComment.CustomerId ?? 0);
-        var isGuest = customer is null || await _customerService.IsGuestAsync(customer);
+        var customer = await _customerService.GetCustomerByIdAsync(newsComment.CustomerId);
 
         var model = new NewsCommentModel
         {
             Id = newsComment.Id,
             CustomerId = newsComment.CustomerId,
-            CustomerName = isGuest
-                ? await _localizationService.GetResourceAsync("Customer.Guest")
-                : await _customerService.FormatUsernameAsync(customer),
+            CustomerName = await _customerService.FormatUsernameAsync(customer),
             CommentTitle = newsComment.CommentTitle,
             CommentText = newsComment.CommentText,
             CreatedOn = await _dateTimeHelper.ConvertToUserTimeAsync(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-            AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest,
+            AllowViewingProfiles = _customerSettings.AllowViewingProfiles && newsComment.CustomerId != 0 && !await _customerService.IsGuestAsync(customer),
         };
 
         if (_customerSettings.AllowCustomersToUploadAvatars)
         {
-            model.CustomerAvatarUrl = isGuest
-                ? await _pictureService.GetDefaultPictureUrlAsync(_mediaSettings.AvatarPictureSize, PictureType.Avatar)
-                : await _pictureService.GetPictureUrlAsync(
-                    await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.AvatarPictureIdAttribute),
-                    _mediaSettings.AvatarPictureSize, _customerSettings.DefaultAvatarEnabled, defaultPictureType: PictureType.Avatar);
+            model.CustomerAvatarUrl = await _pictureService.GetPictureUrlAsync(
+                await _genericAttributeService.GetAttributeAsync<Customer, int>(newsComment.CustomerId, NopCustomerDefaults.AvatarPictureIdAttribute),
+                _mediaSettings.AvatarPictureSize, _customerSettings.DefaultAvatarEnabled, defaultPictureType: PictureType.Avatar);
         }
 
         return model;

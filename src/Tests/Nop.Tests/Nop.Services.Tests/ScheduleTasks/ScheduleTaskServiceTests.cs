@@ -10,7 +10,6 @@ public class ScheduleTaskServiceTests : ServiceTest
 {
     private IScheduleTaskService _scheduleTaskService;
     private ScheduleTask _task;
-    private int _newTaskId;
 
     [OneTimeSetUp]
     public async Task SetUp()
@@ -25,7 +24,6 @@ public class ScheduleTaskServiceTests : ServiceTest
         };
 
         await _scheduleTaskService.InsertTaskAsync(_task);
-        _newTaskId = _task.Id;
     }
 
     [OneTimeTearDown]
@@ -92,7 +90,6 @@ public class ScheduleTaskServiceTests : ServiceTest
             _scheduleTaskService.UpdateTaskAsync(null).Wait());
     }
 
-    [Test]
     public async Task CanDeleteTask()
     {
         _task.Id = 0;
@@ -116,7 +113,7 @@ public class ScheduleTaskServiceTests : ServiceTest
     {
         var task = await _scheduleTaskService.GetTaskByTypeAsync(typeof(TestScheduleTask).FullName);
 
-        task.Id.Should().Be(_newTaskId);
+        task.Id.Should().Be(_task.Id);
         task.Name.Should().Be(_task.Name);
     }
 
@@ -140,12 +137,12 @@ public class ScheduleTaskServiceTests : ServiceTest
 
         tasks.Count.Should().Be(9);
         tasks.Any(p => p.Enabled == false).Should().BeFalse();
-        tasks.Any(p => p.Id == _newTaskId).Should().BeFalse();
+        tasks.Any(p => p.Id == _task.Id).Should().BeFalse();
 
         tasks = await _scheduleTaskService.GetAllTasksAsync(true);
 
         tasks.Count.Should().Be(13);
         tasks.Any(p => p.Enabled).Should().BeTrue();
-        tasks.Any(p => p.Id == _newTaskId).Should().BeTrue();
+        tasks.Any(p => p.Id == _task.Id).Should().BeTrue();
     }
 }

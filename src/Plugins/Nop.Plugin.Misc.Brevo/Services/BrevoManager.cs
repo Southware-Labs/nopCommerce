@@ -166,9 +166,7 @@ public partial class BrevoManager
             List<Customer> customers = null;
             async Task<List<Customer>> getCustomersAsync()
             {
-                customers ??= (await _customerService.GetAllCustomersAsync())
-                    .Where(customer => !string.IsNullOrEmpty(customer?.Email))
-                    .ToList();
+                customers ??= (await _customerService.GetAllCustomersAsync()).ToList();
                 return customers;
             }
 
@@ -778,7 +776,7 @@ public partial class BrevoManager
             ArgumentNullException.ThrowIfNull(order);
 
             var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
-            if (string.IsNullOrEmpty(customer?.Email))
+            if (customer.Email is null)
                 return;
 
             //create API client

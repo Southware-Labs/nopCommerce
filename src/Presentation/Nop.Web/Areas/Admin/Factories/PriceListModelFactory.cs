@@ -369,9 +369,7 @@ public partial class PriceListModelFactory : IPriceListModelFactory
             pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
 
         var customerIds = priceListCustomers.Select(c => c.CustomerId).Distinct().ToArray();
-        var customers = (await _customerService.GetCustomersByIdsAsync(customerIds))
-            .Where(customer => customer is not null)
-            .ToList();
+        var customers = await _customerService.GetCustomersByIdsAsync(customerIds);
         var customerEmails = customers.ToDictionary(p => p.Id, p => p.Email);
 
         //prepare grid model

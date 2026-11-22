@@ -161,8 +161,7 @@ public class NewsController : BasePublicController
             ModelState.AddModelError("", await _localizationService.GetResourceAsync("Common.WrongCaptchaMessage"));
 
         var customer = await _workContext.GetCurrentCustomerAsync();
-        var isGuest = await _customerService.IsGuestAsync(customer);
-        if (isGuest && !_newsSettings.AllowNotRegisteredUsersToLeaveComments)
+        if (await _customerService.IsGuestAsync(customer) && !_newsSettings.AllowNotRegisteredUsersToLeaveComments)
             ModelState.AddModelError("", await _localizationService.GetResourceAsync("Plugins.Misc.News.Comments.OnlyRegisteredUsersLeaveComments"));
 
         if (ModelState.IsValid)
@@ -172,7 +171,7 @@ public class NewsController : BasePublicController
             var comment = new NewsComment
             {
                 NewsItemId = newsItem.Id,
-                CustomerId = !isGuest ? customer.Id : null,
+                CustomerId = customer.Id,
                 CommentTitle = model.AddNewComment.CommentTitle,
                 CommentText = model.AddNewComment.CommentText,
                 IsApproved = !_newsSettings.NewsCommentsMustBeApproved,

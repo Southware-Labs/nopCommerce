@@ -138,7 +138,6 @@
 			'btnCancel' : 'Ακύρωση',
 			'btnNo'     : 'Όχι',
 			'btnYes'    : 'Ναι',
-			'btnDiscard': 'Discard changes',
 			'btnMount'  : 'Mount',
 			
 			/******************************** notifications ********************************/
@@ -319,12 +318,6 @@
 			'kindTTF'         : 'Γραμματοσειρά True Type',
 			'kindOTF'         : 'Γραμματοσειρά Open Type',
 			'kindRPM'         : 'Πακέτο RPM',
-			// fonts
-			'kindFont'        : 'Γραμματοσειρά',
-			'kindSFNT'        : 'Γραμματοσειρά SFNT',
-			'kindEOT'         : 'Γραμματοσειρά Embedded Open Type',
-			'kindWOFF'        : 'Γραμματοσειρά Web Open Font Format',
-			'kindWOFF2'       : 'Γραμματοσειρά Web Open Font Format 2',
 			// texts
 			'kindText'        : 'Έγγραφο κειμένου',
 			'kindTextPlain'   : 'Απλό κείμενο',

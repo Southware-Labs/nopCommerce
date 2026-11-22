@@ -1263,20 +1263,11 @@ div.row.justify-content-between.dt-layout-table thead {
   .input-group-required .input-group-btn {
     font-size: inherit;
     vertical-align: top;
-    flex: 0 0 auto;
-    width: auto;
-    white-space: nowrap;
+    width: 1.5%;
   }
 
   .input-group-required.input-group {
-    flex-wrap: nowrap;
     width: 100% !important;
-  }
-
-  .input-group-required .select2-blue {
-    flex: 1 1 0;
-    min-width: 0;
-    width: auto;
   }
 
 input[type=file].form-control {

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using FluentMigrator.Builders.Create.Table;
+﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Data.Extensions;
@@ -19,7 +18,7 @@ public partial class SearchTermBuilder : NopEntityBuilder<SearchTerm>
     /// <param name="table">Create table expression builder</param>
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
-        table.WithColumn(nameof(SearchTerm.CustomerId)).AsInt32().Nullable().ForeignKey<Customer>(onDelete: Rule.SetNull);
+        table.WithColumn(nameof(SearchTerm.CustomerId)).AsInt32().ForeignKey<Customer>();
     }
 
     #endregion

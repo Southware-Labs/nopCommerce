@@ -336,7 +336,7 @@ public partial class ProductController : BasePublicController
             var productReview = new ProductReview
             {
                 ProductId = product.Id,
-                CustomerId = await _customerService.IsGuestAsync(customer) ? null : customer.Id,
+                CustomerId = customer.Id,
                 Title = model.AddProductReview.Title,
                 ReviewText = model.AddProductReview.ReviewText,
                 Rating = rating,

@@ -175,9 +175,6 @@ public class RfqMessageService : WorkflowMessageService
             return new List<int>();
 
         var customer = await _customerService.GetCustomerByIdAsync(quote.CustomerId);
-        if (customer is null)
-            return new List<int>();
-
         var languageId = await EnsureLanguageIsActiveAsync(customer.LanguageId ?? 0, store.Id);
         var language = await _languageService.GetLanguageByIdAsync(languageId);
 

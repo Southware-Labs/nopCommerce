@@ -1,5 +1,4 @@
-﻿using System.Data;
-using FluentMigrator.Builders.Create.Table;
+﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Stores;
@@ -22,7 +21,7 @@ public partial class BlogCommentBuilder : NopEntityBuilder<BlogComment>
     {
         table
             .WithColumn(nameof(BlogComment.StoreId)).AsInt32().ForeignKey<Store>()
-            .WithColumn(nameof(BlogComment.CustomerId)).AsInt32().Nullable().ForeignKey<Customer>(onDelete: Rule.SetNull)
+            .WithColumn(nameof(BlogComment.CustomerId)).AsInt32().ForeignKey<Customer>()
             .WithColumn(nameof(BlogComment.BlogPostId)).AsInt32().ForeignKey<BlogPost>();
     }
 

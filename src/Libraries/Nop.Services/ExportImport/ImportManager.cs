@@ -1640,12 +1640,6 @@ public partial class ImportManager : IImportManager
 
         var manager = new PropertyManager<PriceList>(defaultProperties, _catalogSettings);
 
-        if (_catalogSettings.ExportImportUseDropdownlistsForAssociatedEntities)
-        {
-            manager.SetSelectList("PriceCalculationType",
-                await PriceCalculationTypeEnum.PercentageDecrease.ToSelectListAsync(useLocalization: false));
-        }
-
         var priceListItemProperties = new[]
         {
             new PropertyByName<PriceListItem>("Sku"),
@@ -1788,7 +1782,7 @@ public partial class ImportManager : IImportManager
     }
 
     /// <returns>A task that represents the asynchronous operation</returns>
-    protected virtual async Task ImportProductLocalizedAsync(Product product, ImportProductMetadata metadata, int iRow, IList<Language> languages, Vendor currentVendor)
+    protected virtual async Task ImportProductLocalizedAsync(Product product, ImportProductMetadata metadata, int iRow, IList<Language> languages)
     {
         if (metadata.LocalizedWorksheets.Any())
         {
@@ -1816,7 +1810,7 @@ public partial class ImportManager : IImportManager
                             await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.ShortDescription, property.StringValue, language.Id);
                             break;
                         case "FullDescription":
-                            await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, currentVendor != null ? CommonHelper.EnsureOnlyAllowedHtml(property.StringValue) : property.StringValue, language.Id);
+                            await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, property.StringValue, language.Id);
                             break;
                         case "MetaKeywords":
                             await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.MetaKeywords, property.StringValue, language.Id);
@@ -1836,12 +1830,6 @@ public partial class ImportManager : IImportManager
                 }
             }
         }
-    }
-
-    /// <returns>A task that represents the asynchronous operation</returns>
-    protected virtual async Task ImportProductLocalizedAsync(Product product, ImportProductMetadata metadata, int iRow, IList<Language> languages)
-    {
-        await ImportProductLocalizedAsync(product, metadata, iRow, languages, await _workContext.GetCurrentVendorAsync());
     }
 
     #endregion
@@ -1965,8 +1953,8 @@ public partial class ImportManager : IImportManager
             manager.ReadDefaultFromXlsx(defaultWorksheet, iRow);
 
             var customerGuid = manager.GetDefaultProperty("CustomerGuid").GuidValue;
-            var customer = await _customerService.GetCustomerByGuidAsync(customerGuid)
-                ?? await _customerService.GetCustomerByEmailAsync(manager.GetDefaultProperty("Email").StringValue);
+            var customer = await _customerService.GetCustomerByGuidAsync(customerGuid) ??
+                           await _customerService.GetCustomerByEmailAsync(manager.GetDefaultProperty("Email").StringValue);
 
             int? avatarPictureId = null;
             string password = null;
@@ -2333,7 +2321,7 @@ public partial class ImportManager : IImportManager
                         product.ShortDescription = property.StringValue;
                         break;
                     case "FullDescription":
-                        product.FullDescription = currentVendor != null ? CommonHelper.EnsureOnlyAllowedHtml(property.StringValue) : property.StringValue;
+                        product.FullDescription = property.StringValue;
                         break;
                     case "Vendor":
                         //vendor can't change this field
@@ -2670,7 +2658,7 @@ public partial class ImportManager : IImportManager
             await _urlRecordService.SaveSlugAsync(product, await _urlRecordService.ValidateSeNameAsync(product, seName, product.Name, true), 0);
 
             //save product localized data
-            await ImportProductLocalizedAsync(product, metadata, iRow, languages, currentVendor);
+            await ImportProductLocalizedAsync(product, metadata, iRow, languages);
 
             tempProperty = metadata.Manager.GetDefaultProperty("Categories");
 
@@ -3327,9 +3315,7 @@ public partial class ImportManager : IImportManager
         var allOrdersByGuids = await _orderService.GetOrdersByGuidsAsync(metadata.AllOrderGuids.ToArray());
 
         //performance optimization, load all customers by guid in one SQL request
-        var allCustomersByGuids = (await _customerService.GetCustomersByGuidsAsync(metadata.AllCustomerGuids.ToArray()))
-            .Where(customer => customer is not null)
-            .ToList();
+        var allCustomersByGuids = await _customerService.GetCustomersByGuidsAsync(metadata.AllCustomerGuids.ToArray());
 
         Order lastLoadedOrder = null;
 

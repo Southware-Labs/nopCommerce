@@ -18,11 +18,6 @@ public class PunchOutSettings : ISettings
     public int TimeToExpire { get; set; }
 
     /// <summary>
-    /// >Gets or sets the unit of measure code for PunchOut session
-    /// </summary>
-    public string UnitOfMeasureCode { get; set; }
-
-    /// <summary>
     /// Gets or sets a list of restricted customer role identifiers
     /// </summary>
     public List<int> RestrictedCustomerRoleIds { get; set; } = new();

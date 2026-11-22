@@ -36,6 +36,24 @@
 }
 
 <script asp-location="Head">
+    const ELFINDER_COMMANDS = elFinder.prototype._options.commands;
+    const ELFINDER_TOOLBAR = [
+        ['back', 'forward'],
+        ['reload'],
+        ['home', 'up'],
+        ['mkdir', 'upload'],
+        ['open', 'download'],
+        ['undo', 'redo'],
+        ['info'],
+        ['quicklook'],
+        ['copy', 'cut', 'paste'],
+        ['rm'],
+        ['duplicate', 'rename', 'edit'],
+        ['selectall', 'selectnone', 'selectinvert'],
+        ['view', 'sort'],
+        ['search']
+    ];
+
     // ElFinder dialog for link browse button
     function openElFinderDialogForLink(fileSelectedCallback) {
         $('<div/>').dialogelfinder({
@@ -55,7 +73,10 @@
                 }
             },
             resizable: false,
-            commands: elFinder.prototype._options.commands,
+            commands: ELFINDER_COMMANDS,
+            uiOptions: {
+                toolbar: ELFINDER_TOOLBAR
+            }
         }).dialogelfinder('instance');
     };
 
@@ -76,7 +97,10 @@
                     }
                 },
                 resizable: false,
-                commands: elFinder.prototype._options.commands,
+                commands: ELFINDER_COMMANDS,
+                uiOptions: {
+                    toolbar: ELFINDER_TOOLBAR
+                }
             }).dialogelfinder('instance');
         }
 

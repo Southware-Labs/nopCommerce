@@ -34,6 +34,7 @@ public partial class ReportController : BaseAdminController
     protected readonly ILocalizationService _localizationService;
     protected readonly INotificationService _notificationService;
     protected readonly IOrderReportService _orderReportService;
+    protected readonly IPermissionService _permissionService;
     protected readonly IPriceFormatter _priceFormatter;
     protected readonly IProductAttributeFormatter _productAttributeFormatter;
     protected readonly IProductService _productService;
@@ -45,7 +46,8 @@ public partial class ReportController : BaseAdminController
 
     #region Ctor
 
-    public ReportController(ICountryService countryService,
+    public ReportController(
+        ICountryService countryService,
         ICustomerReportService customerReportService,
         ICustomerService customerService,
         IDateTimeHelper dateTimeHelper,
@@ -53,6 +55,7 @@ public partial class ReportController : BaseAdminController
         ILocalizationService localizationService,
         INotificationService notificationService,
         IOrderReportService orderReportService,
+        IPermissionService permissionService,
         IPriceFormatter priceFormatter,
         IProductAttributeFormatter productAttributeFormatter,
         IProductService productService,
@@ -68,6 +71,7 @@ public partial class ReportController : BaseAdminController
         _localizationService = localizationService;
         _notificationService = notificationService;
         _orderReportService = orderReportService;
+        _permissionService = permissionService;
         _priceFormatter = priceFormatter;
         _productAttributeFormatter = productAttributeFormatter;
         _productService = productService;
@@ -106,6 +110,7 @@ public partial class ReportController : BaseAdminController
 
         return Json(model);
     }
+
 
     [HttpPost]
     [FormValueRequired("exportxml-all")]
@@ -148,6 +153,7 @@ public partial class ReportController : BaseAdminController
         }
     }
 
+
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
     [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
@@ -189,6 +195,7 @@ public partial class ReportController : BaseAdminController
         }
     }
 
+
     #endregion
 
     #region Low stock
@@ -213,6 +220,7 @@ public partial class ReportController : BaseAdminController
 
         return Json(model);
     }
+
 
     [HttpPost]
     [FormValueRequired("exportxml-all")]
@@ -270,6 +278,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("LowStock");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -364,6 +373,7 @@ public partial class ReportController : BaseAdminController
         return Json(new { aggregatortotal = totalAmount });
     }
 
+
     [HttpPost]
     [FormValueRequired("exportxml-all")]
     [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
@@ -393,10 +403,11 @@ public partial class ReportController : BaseAdminController
             storeId: searchModel.StoreId);
 
         var models = await bestsellers.SelectAwait(async item =>
-        {
-            item.TotalAmountStr = await _priceFormatter.FormatPriceAsync(item.TotalAmount, true, false);
-            return item;
-        }).ToListAsync();
+            {
+                item.TotalAmountStr = await _priceFormatter.FormatPriceAsync(item.TotalAmount, true, false);
+                return item;
+            }
+        ).ToListAsync();
 
         try
         {
@@ -409,6 +420,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("BestSellers");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -439,10 +451,11 @@ public partial class ReportController : BaseAdminController
             storeId: searchModel.StoreId);
 
         var models = await bestsellers.SelectAwait(async item =>
-        {
-            item.TotalAmountStr = await _priceFormatter.FormatPriceAsync(item.TotalAmount, true, false);
-            return item;
-        }).ToListAsync();
+            {
+                item.TotalAmountStr = await _priceFormatter.FormatPriceAsync(item.TotalAmount, true, false);
+                return item;
+            }
+        ).ToListAsync();
 
         try
         {
@@ -481,6 +494,7 @@ public partial class ReportController : BaseAdminController
         return Json(model);
     }
 
+
     [HttpPost]
     [FormValueRequired("exportxml-all")]
     [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
@@ -514,6 +528,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("NeverSold");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -574,6 +589,7 @@ public partial class ReportController : BaseAdminController
         return Json(model);
     }
 
+
     [HttpPost]
     [FormValueRequired("exportxml-all")]
     [CheckPermission(StandardPermission.Orders.ORDERS_VIEW)]
@@ -594,12 +610,13 @@ public partial class ReportController : BaseAdminController
             endTimeUtc: endDateValue);
 
         var models = await items.SelectAwait(async item =>
-        {
-            item.SumOrdersStr = await _priceFormatter.FormatPriceAsync(item.SumOrders, true, false);
-            item.CountryName = (await _countryService.GetCountryByIdAsync(item.CountryId ?? 0))?.Name;
+            {
+                item.SumOrdersStr = await _priceFormatter.FormatPriceAsync(item.SumOrders, true, false);
+                item.CountryName = (await _countryService.GetCountryByIdAsync(item.CountryId ?? 0))?.Name;
 
-            return item;
-        }).ToListAsync();
+                return item;
+            }
+        ).ToListAsync();
 
         try
         {
@@ -612,6 +629,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("CountrySales");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -633,12 +651,13 @@ public partial class ReportController : BaseAdminController
             endTimeUtc: endDateValue);
 
         var models = await items.SelectAwait(async item =>
-        {
-            item.SumOrdersStr = await _priceFormatter.FormatPriceAsync(item.SumOrders, true, false);
-            item.CountryName = (await _countryService.GetCountryByIdAsync(item.CountryId ?? 0))?.Name;
+            {
+                item.SumOrdersStr = await _priceFormatter.FormatPriceAsync(item.SumOrders, true, false);
+                item.CountryName = (await _countryService.GetCountryByIdAsync(item.CountryId ?? 0))?.Name;
 
-            return item;
-        }).ToListAsync();
+                return item;
+            }
+        ).ToListAsync();
 
         try
         {
@@ -719,6 +738,7 @@ public partial class ReportController : BaseAdminController
         return Json(model);
     }
 
+
     [HttpPost]
     [FormValueRequired("exportxml-all")]
     [CheckPermission(StandardPermission.Customers.CUSTOMERS_VIEW)]
@@ -727,23 +747,19 @@ public partial class ReportController : BaseAdminController
     {
         var reportItems = new List<RegisteredCustomersReportLine>
         {
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.7days"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(7)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.14days"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(14)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.month"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(30)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.year"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(365)
             }
@@ -761,6 +777,7 @@ public partial class ReportController : BaseAdminController
         }
     }
 
+
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
     [CheckPermission(StandardPermission.Customers.CUSTOMERS_VIEW)]
@@ -769,23 +786,19 @@ public partial class ReportController : BaseAdminController
     {
         var reportItems = new List<RegisteredCustomersReportLine>
         {
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.7days"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(7)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.14days"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(14)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.month"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(30)
             },
-            new()
-            {
+            new() {
                 Period = await _localizationService.GetResourceAsync("Admin.Reports.Customers.RegisteredCustomers.Fields.Period.year"),
                 Customers = await _customerReportService.GetRegisteredCustomersReportAsync(365)
             }
@@ -802,6 +815,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("RegisteredCustomers");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportxml-all")]
@@ -827,14 +841,18 @@ public partial class ReportController : BaseAdminController
             orderBy: OrderByEnum.OrderByTotalAmount);
 
         var models = await reportItems.SelectAwait(async item =>
-        {
-            var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
-            item.CustomerName = !string.IsNullOrEmpty(customer?.Email)
-                ? customer.Email
-                : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
-            item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
-            return item;
-        }).ToListAsync();
+                {
+                    var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
+                    if (customer != null)
+                    {
+                        item.CustomerName = (await _customerService.IsRegisteredAsync(customer))
+                            ? customer.Email
+                            : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                    }
+                    item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
+                    return item;
+                }
+            ).ToListAsync();
 
         try
         {
@@ -847,6 +865,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("BestCustomersByOrderTotal");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -872,14 +891,19 @@ public partial class ReportController : BaseAdminController
             orderBy: OrderByEnum.OrderByTotalAmount);
 
         var models = await reportItems.SelectAwait(async item =>
-        {
-            var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
-            item.CustomerName = !string.IsNullOrEmpty(customer?.Email)
-                ? customer.Email
-                : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
-            item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
-            return item;
-        }).ToListAsync();
+                {
+                    var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
+                    if (customer != null)
+                    {
+                        item.CustomerName = (await _customerService.IsRegisteredAsync(customer))
+                            ? customer.Email
+                            : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                    }
+
+                    item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
+                    return item;
+                }
+            ).ToListAsync();
 
         try
         {
@@ -892,6 +916,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("BestCustomersByOrderTotal");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportxml-all")]
@@ -917,14 +942,19 @@ public partial class ReportController : BaseAdminController
             orderBy: OrderByEnum.OrderByQuantity);
 
         var models = await reportItems.SelectAwait(async item =>
-        {
-            var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
-            item.CustomerName = !string.IsNullOrEmpty(customer?.Email)
-                ? customer.Email
-                : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
-            item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
-            return item;
-        }).ToListAsync();
+                {
+                    var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
+                    if (customer != null)
+                    {
+                        item.CustomerName = (await _customerService.IsRegisteredAsync(customer))
+                            ? customer.Email
+                            : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                    }
+
+                    item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
+                    return item;
+                }
+            ).ToListAsync();
 
         try
         {
@@ -937,6 +967,7 @@ public partial class ReportController : BaseAdminController
             return RedirectToAction("BestCustomersByNumberOfOrders");
         }
     }
+
 
     [HttpPost]
     [FormValueRequired("exportexcel-all")]
@@ -962,15 +993,20 @@ public partial class ReportController : BaseAdminController
             orderBy: OrderByEnum.OrderByQuantity);
 
         var models = await reportItems.SelectAwait(async item =>
-        {
-            //fill in additional values (not existing in the entity)
-            var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
-            item.CustomerName = !string.IsNullOrEmpty(customer?.Email)
-                ? customer.Email
-                : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
-            item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
-            return item;
-        }).ToListAsync();
+                {
+                    //fill in additional values (not existing in the entity)
+                    var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
+                    if (customer != null)
+                    {
+                        item.CustomerName = (await _customerService.IsRegisteredAsync(customer))
+                            ? customer.Email
+                            : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                    }
+
+                    item.OrderTotalStr = await _priceFormatter.FormatPriceAsync(item.OrderTotal, true, false);
+                    return item;
+                }
+            ).ToListAsync();
 
         try
         {

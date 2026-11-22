@@ -204,7 +204,7 @@ public class NewsAdminController : BasePluginController
         model = await _newsModelFactory.PrepareNewsItemModelAsync(model, null, true);
 
         //if we got this far, something failed, redisplay form
-        return View("~/Plugins/Misc.News/Admin/Views/NewsItemCreate.cshtml", model);
+        return View(model);
     }
 
     [CheckPermission(NewsDefaults.Permissions.NEWS_VIEW)]

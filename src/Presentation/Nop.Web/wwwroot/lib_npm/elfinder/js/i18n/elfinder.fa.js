@@ -174,7 +174,6 @@
 			'btnCancel' : 'انصراف',
 			'btnNo'     : 'خیر',
 			'btnYes'    : 'بلی',
-			'btnDiscard': 'Discard changes',
 			'btnMount'  : 'اتصال',  // added 18.04.2012
 			'btnApprove': 'رفتن به $1 و تایید', // from v2.1 added 26.04.2012
 			'btnUnmount': 'قطع اتصال', // from v2.1 added 30.04.2012
@@ -523,12 +522,6 @@
 			'kindTTF'         : 'فونت True Type',
 			'kindOTF'         : 'فونت Open Type',
 			'kindRPM'         : 'بسته RPM',
-			// fonts
-			'kindFont'        : 'فونت',
-			'kindSFNT'        : 'فونت SFNT',
-			'kindEOT'         : 'فونت Embedded Open Type',
-			'kindWOFF'        : 'فونت Web Open Font Format',
-			'kindWOFF2'       : 'فونت Web Open Font Format 2',
 			// texts
 			'kindText'        : 'سند متنی',
 			'kindTextPlain'   : 'سند متنی ساده',

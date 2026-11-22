@@ -1,5 +1,4 @@
-﻿using System.Data;
-using FluentMigrator.Builders.Create.Table;
+﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Stores;
@@ -21,7 +20,7 @@ public partial class ProductReviewBuilder : NopEntityBuilder<ProductReview>
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
         table
-            .WithColumn(nameof(ProductReview.CustomerId)).AsInt32().Nullable().ForeignKey<Customer>(onDelete: Rule.SetNull)
+            .WithColumn(nameof(ProductReview.CustomerId)).AsInt32().ForeignKey<Customer>()
             .WithColumn(nameof(ProductReview.ProductId)).AsInt32().ForeignKey<Product>()
             .WithColumn(nameof(ProductReview.StoreId)).AsInt32().ForeignKey<Store>();
     }

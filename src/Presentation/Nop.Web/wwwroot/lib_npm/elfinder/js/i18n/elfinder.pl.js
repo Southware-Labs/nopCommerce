@@ -174,7 +174,6 @@
 			'btnCancel' : 'Anuluj',
 			'btnNo'     : 'Nie',
 			'btnYes'    : 'Tak',
-			'btnDiscard': 'Discard changes',
 			'btnMount'  : 'Montuj',  // added 18.04.2012
 			'btnApprove': 'Idź do $1 & zatwierdź', // from v2.1 added 26.04.2012
 			'btnUnmount': 'Odmontuj', // from v2.1 added 30.04.2012
@@ -523,12 +522,6 @@
 			'kindTTF'         : 'Czcionka TrueType',
 			'kindOTF'         : 'Czcionka OpenType',
 			'kindRPM'         : 'Pakiet RPM',
-			// fonts
-			'kindFont'        : 'Czcionka',
-			'kindSFNT'        : 'Czcionka SFNT',
-			'kindEOT'         : 'Czcionka Embedded Open Type',
-			'kindWOFF'        : 'Czcionka Web Open Font Format',
-			'kindWOFF2'       : 'Czcionka Web Open Font Format 2',
 			// texts
 			'kindText'        : 'Dokument tekstowy',
 			'kindTextPlain'   : 'Zwykły tekst',

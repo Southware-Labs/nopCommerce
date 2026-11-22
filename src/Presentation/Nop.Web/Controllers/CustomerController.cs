@@ -302,7 +302,10 @@ public partial class CustomerController : BasePublicController
                 {
                     //load read-only (already server-side selected) values
                     var attributeValues = await _customerAttributeService.GetAttributeValuesAsync(attribute.Id);
-                    foreach (var selectedAttributeId in attributeValues.Where(v => v.IsPreSelected).Select(v => v.Id).ToList())
+                    foreach (var selectedAttributeId in attributeValues
+                                 .Where(v => v.IsPreSelected)
+                                 .Select(v => v.Id)
+                                 .ToList())
                     {
                         attributesXml = _customerAttributeParser.AddAttribute(attributesXml,
                             attribute, selectedAttributeId.ToString());
@@ -494,15 +497,14 @@ public partial class CustomerController : BasePublicController
                             ? await _customerService.GetCustomerByUsernameAsync(customerUserName)
                             : await _customerService.GetCustomerByEmailAsync(customerEmail);
 
-                        return await _customerRegistrationService.SignInCustomerAsync(customer, returnUrl, model.RememberMe);
+                        return await _customerRegistrationService.SignInCustomerAsync(customer, returnUrl,
+                            model.RememberMe);
                     }
                     case CustomerLoginResults.MultiFactorAuthenticationRequired:
                     {
                         var customerMultiFactorAuthenticationInfo = new CustomerMultiFactorAuthenticationInfo
                         {
-                            UserName = userNameOrEmail,
-                            RememberMe = model.RememberMe,
-                            ReturnUrl = returnUrl
+                            UserName = userNameOrEmail, RememberMe = model.RememberMe, ReturnUrl = returnUrl
                         };
                         await HttpContext.Session.SetAsync(
                             NopCustomerDefaults.CustomerMultiFactorAuthenticationInfo,
@@ -536,7 +538,8 @@ public partial class CustomerController : BasePublicController
                         ? await _customerService.GetCustomerByUsernameAsync(customerUserName)
                         : await _customerService.GetCustomerByEmailAsync(customerEmail);
 
-                    await _workflowMessageService.SendCustomerFailedLoginAttemptNotificationAsync(customer, customer.LanguageId ?? 0);
+                    await _workflowMessageService.SendCustomerFailedLoginAttemptNotificationAsync(customer,
+                        customer.LanguageId ?? 0);
                 }
 
                 await _customerActivityService.InsertActivityAsync("PublicStore.FailedLogin",
@@ -758,9 +761,7 @@ public partial class CustomerController : BasePublicController
         if (string.IsNullOrEmpty(userName))
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);
 
-        var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsernameAsync(userName)
-            : await _customerService.GetCustomerByEmailAsync(userName);
+        var customer = _customerSettings.UsernamesEnabled ? await _customerService.GetCustomerByUsernameAsync(userName) : await _customerService.GetCustomerByEmailAsync(userName);
         if (customer == null)
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);
 
@@ -893,7 +894,7 @@ public partial class CustomerController : BasePublicController
     {
         //For backward compatibility with previous versions where email was used as a parameter in the URL
         var customer = await _customerService.GetCustomerByEmailAsync(email)
-            ?? await _customerService.GetCustomerByGuidAsync(guid);
+                       ?? await _customerService.GetCustomerByGuidAsync(guid);
 
         if (customer == null)
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);
@@ -935,7 +936,7 @@ public partial class CustomerController : BasePublicController
     {
         //For backward compatibility with previous versions where email was used as a parameter in the URL
         var customer = await _customerService.GetCustomerByEmailAsync(email)
-            ?? await _customerService.GetCustomerByGuidAsync(guid);
+                       ?? await _customerService.GetCustomerByGuidAsync(guid);
 
         if (customer == null)
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);
@@ -1438,7 +1439,7 @@ public partial class CustomerController : BasePublicController
     {
         //For backward compatibility with previous versions where email was used as a parameter in the URL
         var customer = await _customerService.GetCustomerByEmailAsync(email)
-            ?? await _customerService.GetCustomerByGuidAsync(guid);
+                       ?? await _customerService.GetCustomerByGuidAsync(guid);
 
         if (customer == null)
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);
@@ -1726,7 +1727,7 @@ public partial class CustomerController : BasePublicController
 
         if (!await _customerService.IsRegisteredAsync(currentCustomer))
             return Challenge();
-
+        
         var ear = await _externalAuthenticationService.GetExternalAuthenticationRecordByIdAsync(id);
 
         if (ear == null)
@@ -1747,7 +1748,7 @@ public partial class CustomerController : BasePublicController
     {
         //For backward compatibility with previous versions where email was used as a parameter in the URL
         var customer = await _customerService.GetCustomerByEmailAsync(email)
-            ?? await _customerService.GetCustomerByGuidAsync(guid);
+                       ?? await _customerService.GetCustomerByGuidAsync(guid);
 
         if (customer == null)
             return RedirectToRoute(NopRouteNames.General.HOMEPAGE);

@@ -19,8 +19,7 @@ public partial class ProfileInfoViewComponent : NopViewComponent
     public async Task<IViewComponentResult> InvokeAsync(int customerProfileId)
     {
         var customer = await _customerService.GetCustomerByIdAsync(customerProfileId);
-        if (customer is null)
-            return Content(string.Empty);
+        ArgumentNullException.ThrowIfNull(customer);
 
         var model = await _profileModelFactory.PrepareProfileInfoModelAsync(customer);
         return await ViewAsync(model);

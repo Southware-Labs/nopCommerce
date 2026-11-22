@@ -117,10 +117,7 @@ public partial class DiscountController : BaseAdminController
         {
             var currentVendor = await _workContext.GetCurrentVendorAsync();
             if (currentVendor != null)
-            {
                 model.VendorId = currentVendor.Id;
-                model.DiscountTypeId = (int)DiscountType.AssignedToSkus;
-            }
 
             var discount = model.ToEntity<Discount>();
             await _discountService.InsertDiscountAsync(discount);
@@ -179,9 +176,6 @@ public partial class DiscountController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            if (currentVendor != null)
-                model.DiscountTypeId = (int)DiscountType.AssignedToSkus;
-
             var prevDiscountType = discount.DiscountType;
             discount = model.ToEntity(discount);
             await _discountService.UpdateDiscountAsync(discount);
@@ -237,6 +231,9 @@ public partial class DiscountController : BaseAdminController
         var currentVendor = await _workContext.GetCurrentVendorAsync();
         if (currentVendor != null && discount.VendorId != currentVendor.Id)
             return RedirectToAction("List");
+
+        //applied to products
+        var products = await _productService.GetProductsWithAppliedDiscountAsync(discount.Id, true);
 
         await _discountService.DeleteDiscountAsync(discount);
 
@@ -426,11 +423,6 @@ public partial class DiscountController : BaseAdminController
         var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
             ?? throw new ArgumentException("No discount found with the specified id");
 
-        //a vendor should have access only to his discounts
-        var currentVendor = await _workContext.GetCurrentVendorAsync();
-        if (currentVendor != null && discount.VendorId != currentVendor.Id)
-            return Content("This is not your discount");
-
         //prepare model
         var model = await _discountModelFactory.PrepareDiscountProductListModelAsync(searchModel, discount);
 
@@ -443,11 +435,6 @@ public partial class DiscountController : BaseAdminController
         //try to get a discount with the specified id
         var discount = await _discountService.GetDiscountByIdAsync(discountId)
             ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
-
-        //a vendor should have access only to his discounts
-        var currentVendor = await _workContext.GetCurrentVendorAsync();
-        if (currentVendor != null && discount.VendorId != currentVendor.Id)
-            return Content("This is not your discount");
 
         //try to get a product with the specified id
         var product = await _productService.GetProductByIdAsync(productId)
@@ -490,21 +477,11 @@ public partial class DiscountController : BaseAdminController
         var discount = await _discountService.GetDiscountByIdAsync(model.DiscountId)
             ?? throw new ArgumentException("No discount found with the specified id");
 
-        //a vendor should have access only to his discounts
-        var currentVendor = await _workContext.GetCurrentVendorAsync();
-        if (currentVendor != null && discount.VendorId != currentVendor.Id)
-            return Content("This is not your discount");
-
         var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
-
         if (selectedProducts.Any())
         {
             foreach (var product in selectedProducts)
             {
-                //a vendor should have access only to his products
-                if (currentVendor != null && product.VendorId != currentVendor.Id)
-                    continue;
-
                 if (await _productService.GetDiscountAppliedToProductAsync(product.Id, discount.Id) is null)
                     await _productService.InsertDiscountProductMappingAsync(new DiscountProductMapping { EntityId = product.Id, DiscountId = discount.Id });
 
@@ -695,11 +672,6 @@ public partial class DiscountController : BaseAdminController
         var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
             ?? throw new ArgumentException("No discount found with the specified id");
 
-        //a vendor should have access only to his discounts
-        var currentVendor = await _workContext.GetCurrentVendorAsync();
-        if (currentVendor != null && discount.VendorId != currentVendor.Id)
-            return Content("This is not your discount");
-
         //prepare model
         var model = await _discountModelFactory.PrepareDiscountUsageHistoryListModelAsync(searchModel, discount);
 
@@ -711,13 +683,8 @@ public partial class DiscountController : BaseAdminController
     public virtual async Task<IActionResult> UsageHistoryDelete(int discountId, int id)
     {
         //try to get a discount with the specified id
-        var discount = await _discountService.GetDiscountByIdAsync(discountId)
+        _ = await _discountService.GetDiscountByIdAsync(discountId)
             ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
-
-        //a vendor should have access only to his discounts
-        var currentVendor = await _workContext.GetCurrentVendorAsync();
-        if (currentVendor != null && discount.VendorId != currentVendor.Id)
-            return Content("This is not your discount");
 
         //try to get a discount usage history entry with the specified id
         var discountUsageHistoryEntry = await _discountService.GetDiscountUsageHistoryByIdAsync(id)

@@ -590,7 +590,7 @@ public partial class CustomerController : BaseAdminController
             var customerAttributeWarnings = await _customerAttributeParser.GetAttributeWarningsAsync(customerAttributesXml);
             foreach (var error in customerAttributeWarnings)
                 ModelState.AddModelError(string.Empty, error);
-        }
+        }        
 
         if (ModelState.IsValid)
         {
@@ -1632,7 +1632,7 @@ public partial class CustomerController : BaseAdminController
                 .Split(_separator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => Convert.ToInt32(x))
                 .ToArray();
-            customers.AddRange((await _customerService.GetCustomersByIdsAsync(ids)).Where(customer => customer is not null));
+            customers.AddRange(await _customerService.GetCustomersByIdsAsync(ids));
         }
 
         try
@@ -1689,7 +1689,7 @@ public partial class CustomerController : BaseAdminController
                 .Split(_separator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => Convert.ToInt32(x))
                 .ToArray();
-            customers.AddRange((await _customerService.GetCustomersByIdsAsync(ids)).Where(customer => customer is not null));
+            customers.AddRange(await _customerService.GetCustomersByIdsAsync(ids));
         }
 
         try

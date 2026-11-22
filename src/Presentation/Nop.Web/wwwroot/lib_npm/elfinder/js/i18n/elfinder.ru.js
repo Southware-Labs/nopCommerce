@@ -2,9 +2,8 @@
  * Русский язык translation
  * @author Dmitry "dio" Levashov <dio@std42.ru>
  * @author Andrew Berezovsky <andrew.berezovsky@gmail.com>
- * @author Alex Yashkin <alex.yashkin@gmail.com>
- * @author Aleev Ruslan <info@cat-art.ru>
- * @version 2026-07-16
+ * @author Alex Yashkin <alex@yashkin.by>
+ * @version 2022-01-02
  */
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
@@ -16,12 +15,12 @@
 	}
 }(this, function(elFinder) {
 	elFinder.prototype.i18.ru = {
-		translator : 'Dmitry "dio" Levashov &lt;dio@std42.ru&gt;, Andrew Berezovsky &lt;andrew.berezovsky@gmail.com&gt;, Alex Yashkin &lt;alex.yashkin@gmail.com&gt;, Aleev Ruslan &lt;info@cat-art.ru&gt;',
+		translator : 'Dmitry "dio" Levashov &lt;dio@std42.ru&gt;, Andrew Berezovsky &lt;andrew.berezovsky@gmail.com&gt;, Alex Yashkin &lt;alex@yashkin.by&gt;',
 		language   : 'Русский язык',
 		direction  : 'ltr',
-		dateFormat : 'd M Y H:i', // will show like: 16 Июл 2026 23:34
-		fancyDateFormat : '$1 H:i', // will show like: Сегодня 23:34
-		nonameDateFormat : 'ymd-His', // noname upload will show like: 260716-233421
+		dateFormat : 'd M Y H:i', // will show like: 02 Янв 2022 19:53
+		fancyDateFormat : '$1 H:i', // will show like: Сегодня 19:53
+		nonameDateFormat : 'ymd-His', // noname upload will show like: 220102-195313
 		messages   : {
 
 			/********************************** errors **********************************/
@@ -162,7 +161,7 @@
 			'cmdempty'     : 'Очистить папку', // from v2.1.25 added 22.06.2017
 			'cmdundo'      : 'Отменить', // from v2.1.27 added 31.07.2017
 			'cmdredo'      : 'Вернуть', // from v2.1.27 added 31.07.2017
-			'cmdpreference': 'Настройки', // from v2.1.27 added 03.08.2017
+			'cmdpreference': 'Предпочтения', // from v2.1.27 added 03.08.2017
 			'cmdselectall' : 'Выбрать все', // from v2.1.28 added 15.08.2017
 			'cmdselectnone': 'Отменить выбор', // from v2.1.28 added 15.08.2017
 			'cmdselectinvert': 'Инвертировать выбор', // from v2.1.28 added 15.08.2017
@@ -177,7 +176,6 @@
 			'btnCancel' : 'Отмена',
 			'btnNo'     : 'Нет',
 			'btnYes'    : 'Да',
-			'btnDiscard': 'Отменить изменения',
 			'btnMount'  : 'Подключить',  // added 18.04.2012
 			'btnApprove': 'Перейти в $1 и применить', // from v2.1 added 26.04.2012
 			'btnUnmount': 'Отключить', // from v2.1 added 30.04.2012
@@ -442,7 +440,7 @@
 			'TextArea'        : 'Текстовая область', // from v2.1.25 added 14.6.2017
 			'folderToEmpty'   : 'Очистить папку "$1".', // from v2.1.25 added 22.6.2017
 			'filderIsEmpty'   : 'Нет файлов в паке "$1".', // from v2.1.25 added 22.6.2017
-			'preference'      : 'Настройка', // from v2.1.26 added 28.6.2017
+			'preference'      : 'Настройки', // from v2.1.26 added 28.6.2017
 			'language'        : 'Язык', // from v2.1.26 added 28.6.2017
 			'clearBrowserData': 'Сбросить настройки для этого браузера', // from v2.1.26 added 28.6.2017
 			'toolbarPref'     : 'Настройки панели', // from v2.1.27 added 2.8.2017
@@ -526,12 +524,6 @@
 			'kindTTF'         : 'Шрифт True Type',
 			'kindOTF'         : 'Шрифт Open Type',
 			'kindRPM'         : 'Пакет RPM',
-			// fonts
-			'kindFont'        : 'Шрифт',
-			'kindSFNT'        : 'Шрифт SFNT',
-			'kindEOT'         : 'Шрифт Embedded Open Type',
-			'kindWOFF'        : 'Шрифт Web Open Font Format',
-			'kindWOFF2'       : 'Шрифт Web Open Font Format 2',
 			// texts
 			'kindText'        : 'Текстовый документ',
 			'kindTextPlain'   : 'Простой текст',
@@ -566,8 +558,6 @@
 			'kindPSD'         : 'Изображение Adobe Photoshop',
 			'kindXBITMAP'     : 'Изображение X bitmap',
 			'kindPXM'         : 'Изображение Pixelmator',
-			'kindWEBP'        : 'Изображение WEBP',
-			'kindSVG'         : 'Изображение SVG',
 			// media
 			'kindAudio'       : 'Аудио файл',
 			'kindAudioMPEG'   : 'Аудио MPEG',

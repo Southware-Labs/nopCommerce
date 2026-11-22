@@ -23,11 +23,6 @@ public class PunchOutDefaults
     public static int TimeToExpireSession => 24;
 
     /// <summary>
-    /// Gets the default unit of measure code for PunchOut session
-    /// </summary>
-    public static string UnitOfMeasureCode => "EA";
-
-    /// <summary>
     /// Gets the configuration route name
     /// </summary>
     public static string ConfigurationRouteName => "Plugin.Misc.PunchOut.Configure";

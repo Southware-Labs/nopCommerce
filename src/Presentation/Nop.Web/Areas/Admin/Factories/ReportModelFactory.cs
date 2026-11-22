@@ -766,9 +766,12 @@ public partial class ReportModelFactory : IReportModelFactory
 
                 //fill in additional values (not existing in the entity)
                 var customer = await _customerService.GetCustomerByIdAsync(item.CustomerId);
-                bestCustomersReportModel.CustomerName = !string.IsNullOrEmpty(customer?.Email)
-                    ? customer.Email
-                    : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                if (customer != null)
+                {
+                    bestCustomersReportModel.CustomerName = (await _customerService.IsRegisteredAsync(customer))
+                        ? customer.Email
+                        : await _localizationService.GetResourceAsync("Admin.Customers.Guest");
+                }
 
                 return bestCustomersReportModel;
             });

@@ -43,8 +43,7 @@ public class SchemaMigration : ForwardOnlyMigration
         }
 
         //#7241
-        this.AddOrAlterForeignKeyColumnFor<Discount, Vendor>(t => t.VendorId)
-            .OnDelete(Rule.SetNull)
+        this.AddOrAlterForeignKeyColumnFor<Discount, Vendor>(t => t.VendorId, onDelete: Rule.SetNull)
             .Nullable();
 
         //#7243

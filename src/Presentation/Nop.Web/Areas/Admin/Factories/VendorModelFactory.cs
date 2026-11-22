@@ -369,7 +369,11 @@ public partial class VendorModelFactory : IVendorModelFactory
             //prepare associated customers
             await PrepareAssociatedCustomerModelsAsync(model.AssociatedCustomers, vendor);
 
-            model.PmCustomerInfo = (await _customerService.GetCustomerByIdAsync(vendor.PmCustomerId ?? 0))?.Email;
+            if (vendor.PmCustomerId > 0)
+            {
+                var pmCustomer = await _customerService.GetCustomerByIdAsync(vendor.PmCustomerId.Value);
+                model.PmCustomerInfo = pmCustomer.Email;
+            }
 
             //prepare nested search models
             PrepareVendorNoteSearchModel(model.VendorNoteSearchModel, vendor);
