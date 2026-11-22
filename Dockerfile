@@ -52,5 +52,4 @@ COPY --from=build --chown=app:app /app/published .
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 
-USER app
 ENTRYPOINT ["dotnet", "Nop.Web.dll"]
