@@ -47,7 +47,7 @@ RUN apk add libc-dev tzdata gcompat --no-cache
 
 WORKDIR /app
 
-COPY --from=build /app/published .
+COPY --from=build --chown=app:app /app/published .
 
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
